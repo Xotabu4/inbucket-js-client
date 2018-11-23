@@ -1,0 +1,29 @@
+{
+  "name": "inbucket-js-client",
+  "version": "1.0.0",
+  "description": "JS client for inbucket mail service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xotabu4/inbucket-js-client.git"
+  },
+  "keywords": [
+    "inbucket"
+  ],
+  "author": "Oleksandr Khotemskyi <xotabu4@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Xotabu4/inbucket-js-client/issues"
+  },
+  "homepage": "https://github.com/Xotabu4/inbucket-js-client#readme", 
+  "dependencies": {
+    "request-promise-native": "1.0.5",
+    "request": "2.88.0"
+  },
+  "devDependencies": {
+    "@types/request-promise-native": "*"
+  }
+}
