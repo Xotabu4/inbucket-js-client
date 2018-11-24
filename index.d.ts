@@ -5,10 +5,12 @@ import * as request from 'request-promise-native';
  */
 export declare class InbucketAPIClient {
     protected baseUrl: string;
+    protected options: request.RequestPromiseOptions;
     /**
      * @param baseUrl string - http://your.host.com/
+     * @param options pass request-promise options to override default
      */
-    constructor(baseUrl: string);
+    constructor(baseUrl: string, options?: request.RequestPromiseOptions);
     protected defaults(): import("request").RequestAPI<request.RequestPromise<any>, request.RequestPromiseOptions, import("request").RequiredUriUrl>;
     /**
      * List contents of mailbox.
@@ -18,7 +20,7 @@ export declare class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-GET-mailbox
      * @param name - mailbox name
      */
-    mailbox(name: string): Promise<MailboxContentModel>;
+    mailbox(name: string): Promise<PreviewMessageModel[]>;
     /**
      * Purge contents of mailbox.
      *
@@ -27,7 +29,7 @@ export declare class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
-    prugeMailbox(name: string): Promise<MailboxContentModel>;
+    prugeMailbox(name: string): Promise<string>;
     /**
      * Retrieve parsed message body
      * GET /api/v1/mailbox/{name}/{id}
@@ -61,7 +63,7 @@ export declare class InbucketAPIClient {
      */
     deleteMessage(name: string, id: string): Promise<string>;
 }
-export interface MailboxContentModel {
+export interface PreviewMessageModel {
     mailbox: string;
     id: string;
     from: string;
@@ -137,4 +139,3 @@ export interface MessageModel {
         "md5": string;
     }[];
 }
-//# sourceMappingURL=index.d.ts.map

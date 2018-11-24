@@ -4,19 +4,20 @@ import * as request from 'request-promise-native'
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
 export class InbucketAPIClient {
-    
+
     /**
      * @param baseUrl string - http://your.host.com/
+     * @param options pass request-promise options to override default
      */
-    constructor(protected baseUrl: string) {
+    constructor(protected baseUrl: string, protected options: request.RequestPromiseOptions = {}) {
 
     }
 
     protected defaults() {
-        return request.defaults({
+        return request.defaults(Object.assign({
             baseUrl: this.baseUrl,
             json: true
-        })
+        }, this.options))
     }
     /**
      * List contents of mailbox.
@@ -26,7 +27,7 @@ export class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-GET-mailbox
      * @param name - mailbox name
      */
-    async mailbox(name: string): Promise<MailboxContentModel> {
+    async mailbox(name: string): Promise<PreviewMessageModel[]> {
         const resp = this.defaults().get(`/api/v1/mailbox/${name}`)
         return resp
     }
@@ -39,7 +40,7 @@ export class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
-    async prugeMailbox(name: string): Promise<MailboxContentModel> {
+    async prugeMailbox(name: string): Promise<string> {
         const resp = this.defaults().delete(`/api/v1/mailbox/${name}`)
         return resp
     }
@@ -90,7 +91,7 @@ export class InbucketAPIClient {
 
 }
 
-export interface MailboxContentModel {
+export interface PreviewMessageModel {
     // "mailbox": "swaks",
     // "id": "20131015T161202-0000",
     // "from": "jamehi03@server.com",

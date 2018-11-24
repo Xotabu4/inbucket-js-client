@@ -7,15 +7,17 @@ const request = require("request-promise-native");
 class InbucketAPIClient {
     /**
      * @param baseUrl string - http://your.host.com/
+     * @param options pass request-promise options to override default
      */
-    constructor(baseUrl) {
+    constructor(baseUrl, options = {}) {
         this.baseUrl = baseUrl;
+        this.options = options;
     }
     defaults() {
-        return request.defaults({
+        return request.defaults(Object.assign({
             baseUrl: this.baseUrl,
             json: true
-        });
+        }, this.options));
     }
     /**
      * List contents of mailbox.
