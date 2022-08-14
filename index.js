@@ -1,22 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const request = require("request-promise-native");
+import axios from 'axios';
 /**
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
-class InbucketAPIClient {
+export class InbucketAPIClient {
     /**
      * @param baseUrl string - http://your.host.com/
-     * @param options pass request-promise options to override default
+     * @param options pass AxiosRequestConfig options to override default
      */
     constructor(baseUrl, options = {}) {
         this.baseUrl = baseUrl;
         this.options = options;
-    }
-    defaults() {
-        return request.defaults(Object.assign({
-            baseUrl: this.baseUrl,
-            json: true
+        this.defaults = axios.create(Object.assign({
+            baseURL: this.baseUrl
         }, this.options));
     }
     /**
@@ -28,8 +23,8 @@ class InbucketAPIClient {
      * @param name - mailbox name
      */
     async mailbox(name) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}`);
-        return resp;
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}`);
+        return resp.data;
     }
     /**
      * Purge contents of mailbox.
@@ -40,8 +35,8 @@ class InbucketAPIClient {
      * @param name - mailbox name
      */
     async prugeMailbox(name) {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}`);
-        return resp;
+        const resp = await this.defaults.delete(`/api/v1/mailbox/${name}`);
+        return resp.data;
     }
     /**
      * Retrieve parsed message body
@@ -52,8 +47,8 @@ class InbucketAPIClient {
      * @param id - message id
      */
     async message(name, id) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}`);
-        return resp;
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}/${id}`);
+        return resp.data;
     }
     /**
      * Retrieve unparsed message source
@@ -68,8 +63,8 @@ class InbucketAPIClient {
      * @param id - message id
      */
     async messageSource(name, id) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}/source`);
-        return resp;
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}/${id}/source`);
+        return resp.data;
     }
     /**
      *
@@ -81,8 +76,7 @@ class InbucketAPIClient {
      * @returns "OK"
      */
     async deleteMessage(name, id) {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}/${id}`);
-        return resp;
+        const resp = await this.defaults.delete(`/api/v1/mailbox/${name}/${id}`);
+        return resp.data;
     }
 }
-exports.InbucketAPIClient = InbucketAPIClient;
