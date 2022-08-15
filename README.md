@@ -1,5 +1,7 @@
 # inbucket-js-client
 
+Изначально [тут]("https://github.com/Xotabu4/inbucket-js-client/)
+
 Simple API client for amazing https://www.inbucket.org/ service
 
 TypeScript typings are included

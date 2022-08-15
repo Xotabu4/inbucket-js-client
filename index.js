@@ -1,8 +1,11 @@
-import axios from 'axios';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const axios = require('axios');
+
 /**
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
-export class InbucketAPIClient {
+class InbucketAPIClient {
     /**
      * @param baseUrl string - http://your.host.com/
      * @param options pass AxiosRequestConfig options to override default
@@ -80,3 +83,5 @@ export class InbucketAPIClient {
         return resp.data;
     }
 }
+
+exports.InbucketAPIClient = InbucketAPIClient;
