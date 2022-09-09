@@ -1,92 +1,89 @@
-import * as request from 'request-promise-native'
+import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios'
 
 /**
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
 export class InbucketAPIClient {
+    protected defaults: AxiosInstance;
 
     /**
      * @param baseUrl string - http://your.host.com/
-     * @param options pass request-promise options to override default
+     * @param options pass AxiosRequestConfig options to override default
      */
-    constructor(protected baseUrl: string, protected options: request.RequestPromiseOptions = {}) {
-
-    }
-
-    protected defaults() {
-        return request.defaults(Object.assign({
-            baseUrl: this.baseUrl,
-            json: true
+    constructor(protected baseUrl: string, protected options: AxiosRequestConfig = {}) {
+        this.defaults =  axios.create(Object.assign({
+            baseURL: this.baseUrl
         }, this.options))
     }
+
     /**
      * List contents of mailbox.
-     * 
+     *
      * GET /api/v1/mailbox/{name}
-     * 
+     *
      * https://github.com/jhillyerd/inbucket/wiki/REST-GET-mailbox
      * @param name - mailbox name
      */
     async mailbox(name: string): Promise<PreviewMessageModel[]> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}`)
-        return resp
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}`)
+        return resp.data;
     }
 
     /**
      * Purge contents of mailbox.
-     * 
+     *
      * DELETE /api/v1/mailbox/{name}
-     * 
+     *
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
     async prugeMailbox(name: string): Promise<string> {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}`)
-        return resp
+        const resp = await this.defaults.delete(`/api/v1/mailbox/${name}`)
+        return resp.data;
     }
 
     /**
      * Retrieve parsed message body
      * GET /api/v1/mailbox/{name}/{id}
-     * 
+     *
      * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message
      * @param name - mailbox name
      * @param id - message id
      */
     async message(name: string, id: string): Promise<MessageModel> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}`)
-        return resp
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}/${id}`)
+        return resp.data;
     }
 
     /**
      * Retrieve unparsed message source
-     * 
+     *
      * Output
      * Plain text dump of the message headers and body in SMTP format.
-     * 
+     *
      * GET /api/v1/mailbox/{name}/{id}/source
-     * 
+     *
      * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message-source
      * @param name - mailbox name
      * @param id - message id
      */
     async messageSource(name: string, id: string): Promise<string> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}/source`)
-        return resp
+        const resp = await this.defaults.get(`/api/v1/mailbox/${name}/${id}/source`)
+        return resp.data;
     }
 
     /**
-     * 
+     *
      * DELETE /api/v1/mailbox/{name}/{id}
-     * 
+     *
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-message
      * @param name - mailbox name
      * @param id - message id
      * @returns "OK"
      */
     async deleteMessage(name: string, id: string): Promise<string> {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}/${id}`)
-        return resp
+        const resp = await this.defaults.delete(`/api/v1/mailbox/${name}/${id}`)
+        return resp.data;
     }
 
 }

@@ -1,6 +1,6 @@
 {
-  "name": "inbucket-js-client",
-  "version": "1.0.0",
+  "name": "inbucket-js-client2",
+  "version": "2.0.3",
   "description": "JS client for inbucket mail service",
   "main": "index.js",
   "scripts": {
@@ -18,12 +18,8 @@
   "bugs": {
     "url": "https://github.com/Xotabu4/inbucket-js-client/issues"
   },
-  "homepage": "https://github.com/Xotabu4/inbucket-js-client#readme", 
+  "homepage": "https://github.com/Xotabu4/inbucket-js-client#readme",
   "dependencies": {
-    "request-promise-native": "1.0.5",
-    "request": "2.88.0"
-  },
-  "devDependencies": {
-    "@types/request-promise-native": "*"
+    "axios": "^0.27.2"
   }
 }
