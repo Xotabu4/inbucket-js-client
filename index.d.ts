@@ -29,7 +29,7 @@ export declare class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
-    prugeMailbox(name: string): Promise<string>;
+    purgeMailbox(name: string): Promise<string>;
     /**
      * Retrieve parsed message body
      * GET /api/v1/mailbox/{name}/{id}
