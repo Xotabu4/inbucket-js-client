@@ -39,7 +39,7 @@ class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
-    async prugeMailbox(name) {
+    async purgeMailbox(name) {
         const resp = this.defaults().delete(`/api/v1/mailbox/${name}`);
         return resp;
     }

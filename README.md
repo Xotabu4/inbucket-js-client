@@ -9,13 +9,13 @@ Supported all base methods from https://github.com/jhillyerd/inbucket/wiki/REST-
 - Get message
 - Get raw message source
 - Delete message
-- Pruge (wipe) inbox
+- Purge (wipe) inbox
 
 Legacy methods are not supported
 
 Small example:
 ```typescript
-import { InbucketAPIClient } from ('./index.js')
+import { InbucketAPIClient } from ('inbucket-js-client');
 
 const client = new InbucketAPIClient('http://192.168.1.1:9001/'); // your base url
 const inbox = await client.mailbox('inboxname') 
