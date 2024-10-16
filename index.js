@@ -1,23 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const request = require("request-promise-native");
+exports.InbucketAPIClient = void 0;
 /**
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
 class InbucketAPIClient {
+    baseUrl;
+    requestInitDefault;
     /**
      * @param baseUrl string - http://your.host.com/
-     * @param options pass request-promise options to override default
+     * @param requestInitDefault pass additional RequestInit options that will be used for fetch requests
+     * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit
      */
-    constructor(baseUrl, options = {}) {
+    constructor(baseUrl, requestInitDefault = { headers: {} }) {
         this.baseUrl = baseUrl;
-        this.options = options;
+        this.requestInitDefault = requestInitDefault;
     }
-    defaults() {
-        return request.defaults(Object.assign({
-            baseUrl: this.baseUrl,
-            json: true
-        }, this.options));
+    async doRequest(path, requestInit) {
+        const fullUrl = new URL(path, this.baseUrl).toString();
+        const response = await fetch(fullUrl, {
+            ...this.requestInitDefault,
+            ...requestInit,
+            headers: {
+                ...this.requestInitDefault.headers,
+                ...requestInit.headers,
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`[inbucket-js-client] request error: ${response.status} ${await response.text()}`);
+        }
+        return response.json();
     }
     /**
      * List contents of mailbox.
@@ -28,8 +40,19 @@ class InbucketAPIClient {
      * @param name - mailbox name
      */
     async mailbox(name) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}`);
-        return resp;
+        return this.doRequest(`/api/v1/mailbox/${name}`, { method: "GET" });
+    }
+    /**
+     * Purge contents of mailbox.
+     *
+     * DELETE /api/v1/mailbox/{name}
+     *
+     * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
+     * @param name - mailbox name
+     * @deprecated use prugeMailbox (typo)
+     */
+    async prugeMailbox(name) {
+        return this.purgeMailbox(name);
     }
     /**
      * Purge contents of mailbox.
@@ -39,9 +62,8 @@ class InbucketAPIClient {
      * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
      * @param name - mailbox name
      */
-    async prugeMailbox(name) {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}`);
-        return resp;
+    async purgeMailbox(name) {
+        return this.doRequest(`/api/v1/mailbox/${name}`, { method: "DELETE" });
     }
     /**
      * Retrieve parsed message body
@@ -52,8 +74,7 @@ class InbucketAPIClient {
      * @param id - message id
      */
     async message(name, id) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}`);
-        return resp;
+        return this.doRequest(`/api/v1/mailbox/${name}/${id}`, { method: "GET" });
     }
     /**
      * Retrieve unparsed message source
@@ -68,8 +89,9 @@ class InbucketAPIClient {
      * @param id - message id
      */
     async messageSource(name, id) {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}/source`);
-        return resp;
+        return this.doRequest(`/api/v1/mailbox/${name}/${id}/source`, {
+            method: "GET",
+        });
     }
     /**
      *
@@ -81,8 +103,9 @@ class InbucketAPIClient {
      * @returns "OK"
      */
     async deleteMessage(name, id) {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}/${id}`);
-        return resp;
+        return this.doRequest(`/api/v1/mailbox/${name}/${id}`, {
+            method: "DELETE",
+        });
     }
 }
 exports.InbucketAPIClient = InbucketAPIClient;

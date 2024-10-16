@@ -1,113 +1,137 @@
-import * as request from 'request-promise-native'
-
 /**
  * https://github.com/jhillyerd/inbucket/wiki/REST-API
  */
 export class InbucketAPIClient {
+  /**
+   * @param baseUrl string - http://your.host.com/
+   * @param requestInitDefault pass additional RequestInit options that will be used for fetch requests
+   * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit
+   */
+  constructor(
+    protected baseUrl: string,
+    protected requestInitDefault: RequestInit = { headers: {} }
+  ) {}
 
-    /**
-     * @param baseUrl string - http://your.host.com/
-     * @param options pass request-promise options to override default
-     */
-    constructor(protected baseUrl: string, protected options: request.RequestPromiseOptions = {}) {
-
+  private async doRequest(path: string, requestInit: RequestInit) {
+    const fullUrl = new URL(path, this.baseUrl).toString();
+    const response = await fetch(fullUrl, {
+      ...this.requestInitDefault,
+      ...requestInit,
+      headers: {
+        ...this.requestInitDefault.headers,
+        ...requestInit.headers,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(
+        `[inbucket-js-client] request error: ${
+          response.status
+        } ${await response.text()}`
+      );
     }
 
-    protected defaults() {
-        return request.defaults(Object.assign({
-            baseUrl: this.baseUrl,
-            json: true
-        }, this.options))
-    }
-    /**
-     * List contents of mailbox.
-     * 
-     * GET /api/v1/mailbox/{name}
-     * 
-     * https://github.com/jhillyerd/inbucket/wiki/REST-GET-mailbox
-     * @param name - mailbox name
-     */
-    async mailbox(name: string): Promise<PreviewMessageModel[]> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}`)
-        return resp
-    }
+    return response.json();
+  }
+  /**
+   * List contents of mailbox.
+   *
+   * GET /api/v1/mailbox/{name}
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-GET-mailbox
+   * @param name - mailbox name
+   */
+  async mailbox(name: string): Promise<PreviewMessageModel[]> {
+    return this.doRequest(`/api/v1/mailbox/${name}`, { method: "GET" }) as Promise<PreviewMessageModel[]>;
+  }
 
-    /**
-     * Purge contents of mailbox.
-     * 
-     * DELETE /api/v1/mailbox/{name}
-     * 
-     * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
-     * @param name - mailbox name
-     */
-    async prugeMailbox(name: string): Promise<string> {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}`)
-        return resp
-    }
+  /**
+   * Purge contents of mailbox.
+   *
+   * DELETE /api/v1/mailbox/{name}
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
+   * @param name - mailbox name
+   * @deprecated use prugeMailbox (typo)
+   */
+  async prugeMailbox(name: string): Promise<string> {
+    return this.purgeMailbox(name);
+  }
 
-    /**
-     * Retrieve parsed message body
-     * GET /api/v1/mailbox/{name}/{id}
-     * 
-     * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message
-     * @param name - mailbox name
-     * @param id - message id
-     */
-    async message(name: string, id: string): Promise<MessageModel> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}`)
-        return resp
-    }
+  /**
+   * Purge contents of mailbox.
+   *
+   * DELETE /api/v1/mailbox/{name}
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-mailbox
+   * @param name - mailbox name
+   */
+  async purgeMailbox(name: string): Promise<string> {
+    return this.doRequest(`/api/v1/mailbox/${name}`, { method: "DELETE" }) as Promise<string>;
+  }
 
-    /**
-     * Retrieve unparsed message source
-     * 
-     * Output
-     * Plain text dump of the message headers and body in SMTP format.
-     * 
-     * GET /api/v1/mailbox/{name}/{id}/source
-     * 
-     * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message-source
-     * @param name - mailbox name
-     * @param id - message id
-     */
-    async messageSource(name: string, id: string): Promise<string> {
-        const resp = this.defaults().get(`/api/v1/mailbox/${name}/${id}/source`)
-        return resp
-    }
+  /**
+   * Retrieve parsed message body
+   * GET /api/v1/mailbox/{name}/{id}
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message
+   * @param name - mailbox name
+   * @param id - message id
+   */
+  async message(name: string, id: string): Promise<MessageModel> {
+    return this.doRequest(`/api/v1/mailbox/${name}/${id}`, { method: "GET" }) as Promise<MessageModel>;
+  }
 
-    /**
-     * 
-     * DELETE /api/v1/mailbox/{name}/{id}
-     * 
-     * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-message
-     * @param name - mailbox name
-     * @param id - message id
-     * @returns "OK"
-     */
-    async deleteMessage(name: string, id: string): Promise<string> {
-        const resp = this.defaults().delete(`/api/v1/mailbox/${name}/${id}`)
-        return resp
-    }
+  /**
+   * Retrieve unparsed message source
+   *
+   * Output
+   * Plain text dump of the message headers and body in SMTP format.
+   *
+   * GET /api/v1/mailbox/{name}/{id}/source
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-GET-message-source
+   * @param name - mailbox name
+   * @param id - message id
+   */
+  async messageSource(name: string, id: string): Promise<string> {
+    return this.doRequest(`/api/v1/mailbox/${name}/${id}/source`, {
+      method: "GET",
+    }) as Promise<string>;
+  }
 
+  /**
+   *
+   * DELETE /api/v1/mailbox/{name}/{id}
+   *
+   * https://github.com/jhillyerd/inbucket/wiki/REST-DELETE-message
+   * @param name - mailbox name
+   * @param id - message id
+   * @returns "OK"
+   */
+  async deleteMessage(name: string, id: string): Promise<string> {
+    return this.doRequest(`/api/v1/mailbox/${name}/${id}`, {
+      method: "DELETE",
+    }) as Promise<string>;
+  }
 }
 
 export interface PreviewMessageModel {
-    // "mailbox": "swaks",
-    // "id": "20131015T161202-0000",
-    // "from": "jamehi03@server.com",
-    // "subject": "Swaks Plain Text",
-    // "date": "2013-10-15T16:12:02.231532239-07:00",
-    // "size": 264
-    mailbox: string
-    id: string
-    from: string
-    subject: string
-    date: string
-    size: number
+  // "mailbox": "swaks",
+  // "id": "20131015T161202-0000",
+  // "from": "jamehi03@server.com",
+  // "subject": "Swaks Plain Text",
+  // "date": "2013-10-15T16:12:02.231532239-07:00",
+  // "size": 264
+  mailbox: string;
+  id: string;
+  from: string;
+  subject: string;
+  date: string;
+  size: number;
 }
 
 export interface MessageModel {
-    /**
+  /**
 "mailbox": "swaks",
     "id": "20131016T164638-0001",
     "from": "jamehi03@server.com",
@@ -149,29 +173,29 @@ export interface MessageModel {
     ]
      */
 
-    mailbox: string
-    id: string
-    from: string
-    subject: string
-    date: string
-    size: number,
-    body: {
-        text: string
-        html: string
-    },
-    header: {
-        "Content-Type": string[]
-        "Date": string[]
-        "From": string[]
-        "Mime-Version": string[]
-        "Subject": string[]
-        "To": string[]
-    },
-    attachments: {
-        "filename": string
-        "content-type": string
-        "download-link": string
-        "view-link": string
-        "md5": string
-    }[]
+  mailbox: string;
+  id: string;
+  from: string;
+  subject: string;
+  date: string;
+  size: number;
+  body: {
+    text: string;
+    html: string;
+  };
+  header: {
+    "Content-Type": string[];
+    Date: string[];
+    From: string[];
+    "Mime-Version": string[];
+    Subject: string[];
+    To: string[];
+  };
+  attachments: {
+    filename: string;
+    "content-type": string;
+    "download-link": string;
+    "view-link": string;
+    md5: string;
+  }[];
 }
